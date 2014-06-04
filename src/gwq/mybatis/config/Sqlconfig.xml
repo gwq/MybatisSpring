@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  
+   <properties resource="gwq/mybatis/data/sqlconfig.properties" />
+   <settings>
+      <!-- 延迟加载：lazyLoadingEnabled和aggressiveLazyLoading两个属性必须全都配置才能生效 -->
+      <setting name="lazyLoadingEnabled" value="true"/>
+      <setting name="aggressiveLazyLoading" value="true"/>
+      
+      <setting name="multipleResultSetsEnabled" value="true"/>
+      <setting name="useColumnLabel" value="true"/>
+      <setting name="useGeneratedKeys" value="false"/>
+      <setting name="defaultExecutorType" value="SIMPLE"/>
+      <!-- 开启二级缓存，设置ehcache -->
+      <setting name="cacheEnabled" value="true"/>
+  </settings>
+	<typeAliases>
+		<typeAlias alias="hotel" type="gwq.mybatis.model.Hotel"/>
+		<typeAlias alias="room" type="gwq.mybatis.model.Room"/>
+	</typeAliases>
+ 
+	<mappers>
+		<mapper resource="gwq/mybatis/mapper/hotel.xml"/>
+		<mapper resource="gwq/mybatis/mapper/room.xml"/>
+	</mappers>
+	 
+</configuration>

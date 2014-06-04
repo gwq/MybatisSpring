@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:aop="http://www.springframework.org/schema/aop"
+   xmlns:cache="http://www.springframework.org/schema/cache"
+   xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd 
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/cache
+	http://www.springframework.org/schema/cache/spring-cache.xsd"
+	default-lazy-init="true" default-autowire="byName">
+
+	<!-- 属性文件读入 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:gwq/mybatis/data/sqlconfig.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	
+	
+	<!-- 数据源定义,使用c3p0 DBCP 连接池
+	   <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${className}"/>
+		<property name="jdbcUrl" value="${url}"/>
+		<property name="user" value="${name}"/>
+		<property name="password" value="${password}"/>
+		<property name="initialPoolSize" value="10"/>
+		<property name="minPoolSize" value="10"/> 
+		<property name="maxPoolSize" value="150"/> 
+		<property name="maxIdleTime" value="25000"/>
+		当连接池中的连接用完时，C3P0一次性创建新连接的数目；
+		<property name="acquireIncrement" value="5"/>
+		隔多少秒检查所有连接池中的空闲连接，默认为0表示不检查；
+		<property name="idleConnectionTestPeriod" value="1800"/>
+		 当连接池用完时客户端调用getConnection()后等待获取新连接的时间，
+		              超时后将抛出SQLException，如设为0则无限期等待。单位毫秒，默认为0；
+		<property name="checkoutTimeout" value="8000"/>
+	</bean>
+	 -->
+	 
+	 
+	<!-- 数据源定义,使用DRUID连接池   参数参考DRUID文档http://code.alibabatech.com/wiki/display/Druid/Home -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+		<property name="url" value="${url}"/>
+		<property name="Username" value="${name}"/>
+		<property name="password" value="${password}"/>
+		
+		<property name="InitialSize" value="10"/>
+		<property name="MinIdle" value="10"/> 
+		<property name="MaxActive" value="150"/>
+		<property name="MinEvictableIdleTimeMillis" value="25000"/>
+		<property name="TimeBetweenEvictionRunsMillis" value="1800"/> 
+		<property name="maxWait" value="4000"/> 
+		
+		<!-- 获取连接时测试是否有效,默认为true，true时开启下列 配置 -->
+		<property name="TestOnBorrow" value="false"/>
+		<!-- 测试有效用的SQL Query -->
+		<!-- <property name="ValidationQuery" value="select id from ***"/> -->
+		<!-- 测试有效的超时时间 -->
+		<!-- <property name="ValidationQueryTimeout" value="4000"/> -->
+	</bean>
+	 
+	 
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+       <property name="configLocation" value="classpath:gwq/mybatis/config/Sqlconfig.xml"></property>
+       <property name="dataSource" ref="dataSource"/>
+       
+    </bean>
+    <!-- ScanMapperFiles 貌似有问题，不是很好用 
+    
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+      <property name="basePackage" value="gwq.mybatis.mapper" />
+     </bean>
+	-->
+	
+	<!--TransactionManager
+	    不用在其中指定数据源，或者事务处理方式。就算配置了也会被忽略。 因为这些都是使用Spring中的配置
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+	</bean>
+	-->
+
+	<!-- 支持 @Transactional 标记 
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	-->
+
+	<!-- 支持 @AspectJ 标记-->
+	<aop:aspectj-autoproxy/> 
+     
+    
+	<!-- 以AspectJ方式 定义 AOP 
+	<aop:config proxy-target-class="true">
+		<aop:advisor pointcut="execution(* org.springside.core.dao.*Dao.*(..))" advice-ref="txAdvice"/>
+	</aop:config>
+	-->
+
+	<!-- 基本事务定义,使用transactionManager作事务管理,默认get*方法的事务为readonly,其余方法按默认设置.
+			 默认的设置请参考Spring文档事务一章. 
+	<tx:advice id="txAdvice"  transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	-->
+	
+	<!-- 使用annotation 自动注册bean,并检查@Required,@Autowired的属性已被注入 -->
+	<context:component-scan base-package="gwq.mybatis.dao" />
+	
+	
+	<!-- 启用缓存注解功能，这个是必须的，否则注解不会生效，另外，该注解一定要声明在spring主配置文件中才会生效 -->  
+	<cache:annotation-driven cache-manager="cacheManager"/>  
+	
+	<!-- cacheManager工厂类，指定ehcache.xml的位置 -->   
+	<bean id="cacheManagerFactory" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+	p:configLocation="classpath:/ehcache.xml" />   
+  
+	<!-- 声明cacheManager -->  
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+	p:cacheManager-ref="cacheManagerFactory" /> 
+</beans>
