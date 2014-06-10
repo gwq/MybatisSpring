@@ -1,15 +1,11 @@
-import gwq.mybatis.dao.HotelDao;
 import gwq.mybatis.model.Hotel;
 import gwq.mybatis.model.Room;
+import gwq.mybatis.service.HotelService;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
@@ -40,7 +36,7 @@ public class test {
 		
 		
 		ApplicationContext context = new ClassPathXmlApplicationContext("gwq/mybatis/config/applicationContext.xml");
-		HotelDao hd = (HotelDao) context.getBean("hotelDaoService");
+		HotelService hd = (HotelService) context.getBean("hotelService");
 		while(true){
 			Thread.sleep(1000);
 			

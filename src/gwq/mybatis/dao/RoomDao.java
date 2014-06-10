@@ -7,9 +7,10 @@ import java.util.List;
 
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
-@Service("roomDaoService")
+@Repository("roomDao")
 public class RoomDao extends SqlSessionDaoSupport{
 
 	//@Cacheable(value="cacheTest1",key="'selectRoomInfo'")

@@ -84,40 +84,41 @@
      </bean>
 	-->
 	
-	<!--TransactionManager
-	    不用在其中指定数据源，或者事务处理方式。就算配置了也会被忽略。 因为这些都是使用Spring中的配置
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-	</bean>
-	-->
-
-	<!-- 支持 @Transactional 标记 
-	<tx:annotation-driven transaction-manager="transactionManager"/>
-	-->
-
+	<!-- 支持 @Transactional 标记-->
+	<tx:annotation-driven/>
+	     
 	<!-- 支持 @AspectJ 标记-->
-	<aop:aspectj-autoproxy/> 
-     
-    
-	<!-- 以AspectJ方式 定义 AOP 
-	<aop:config proxy-target-class="true">
-		<aop:advisor pointcut="execution(* org.springside.core.dao.*Dao.*(..))" advice-ref="txAdvice"/>
-	</aop:config>
-	-->
-
-	<!-- 基本事务定义,使用transactionManager作事务管理,默认get*方法的事务为readonly,其余方法按默认设置.
-			 默认的设置请参考Spring文档事务一章. 
-	<tx:advice id="txAdvice"  transaction-manager="transactionManager">
-		<tx:attributes>
-			<tx:method name="get*" read-only="true"/>
-			<tx:method name="find*" read-only="true"/>
-			<tx:method name="*"/>
-		</tx:attributes>
-	</tx:advice>
-	-->
+	<aop:aspectj-autoproxy/>    
 	
+	
+   <!-- ================================事务相关控制,在mybatis中不配置则会采用默认事务=================================================    -->
+   <bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">     
+          <property name="dataSource" ref="dataSource"></property>
+    </bean>     
+  
+   <tx:advice id="userTxAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+      <tx:method name="delete*" propagation="REQUIRED" read-only="false" 
+                            rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException"/>
+      <tx:method name="insert*" propagation="REQUIRED" read-only="false" 
+                            rollback-for="java.lang.RuntimeException" />
+      <tx:method name="update*" propagation="REQUIRED" read-only="false" 
+                            rollback-for="java.lang.Exception" />
+      
+      <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+      <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+      <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
+    </tx:attributes>
+  </tx:advice>
+  
+  <aop:config>    
+    <aop:pointcut id="pc" expression="execution(public * gwq.mybatis.service.*.*(..))" /> <!--把事务控制在Service层-->
+    <aop:advisor pointcut-ref="pc" advice-ref="userTxAdvice" />
+  </aop:config>
+	
+	<context:annotation-config />
 	<!-- 使用annotation 自动注册bean,并检查@Required,@Autowired的属性已被注入 -->
-	<context:component-scan base-package="gwq.mybatis.dao" />
+	<context:component-scan base-package="gwq.mybatis" />
 	
 	
 	<!-- 启用缓存注解功能，这个是必须的，否则注解不会生效，另外，该注解一定要声明在spring主配置文件中才会生效 -->  

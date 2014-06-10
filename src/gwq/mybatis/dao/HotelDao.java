@@ -7,12 +7,12 @@ import java.util.List;
 
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-@Service("hotelDaoService")
-@Transactional
+@Repository("hotelDao")
 public class HotelDao extends SqlSessionDaoSupport{
 
 	//@Cacheable(value="cacheTest1")

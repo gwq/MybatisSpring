@@ -1,6 +1,8 @@
+import gwq.mybatis.aciton.TestAction;
 import gwq.mybatis.dao.HotelDao;
-import gwq.mybatis.dao.RoomDao;
 import gwq.mybatis.model.Room;
+import gwq.mybatis.service.HotelService;
+import gwq.mybatis.service.RoomService;
 
 import java.util.List;
 import java.util.Scanner;
@@ -9,19 +11,23 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 public class SystemMain {
 
-	private HotelDao hotelDao;
-	private RoomDao roomDao;
+
+	private HotelService hotelService;
+
+	private RoomService roomService;
 
     public SystemMain(){
     	ApplicationContext context = new ClassPathXmlApplicationContext("gwq/mybatis/config/applicationContext.xml");
-		hotelDao = (HotelDao) context.getBean("hotelDaoService");
-		roomDao = (RoomDao)context.getBean("roomDaoService");
+		hotelService = (HotelService) context.getBean("hotelService");
+		roomService = (RoomService)context.getBean("roomService");
+		//TestAction testAction = (TestAction)context.getBean("testAction");
     }
 	
     public void begin(){
@@ -67,7 +73,7 @@ public class SystemMain {
 
 		room.setRoomNo(numstr);
 		
-		hotelDao.insertRoom(room);
+		hotelService.insertRoom(room);
 		System.out.println(room.getId());
 		/**
 		 * 注解方式或代码方式更新缓存(注解在updateHotelByID(room)方法上)
@@ -87,7 +93,7 @@ public class SystemMain {
 		room.setId(1);
 		room.setRoomNo(numstr);
 		
-		hotelDao.updateHotelByID(room);
+		hotelService.updateHotelByID(room);
 		/**
 		 * 注解方式或代码方式更新缓存(注解在updateHotelByID(room)方法上)
 		 */
@@ -98,7 +104,7 @@ public class SystemMain {
 	}
 
 	private void selectRoomInfo() {
-		List<Room> lr = roomDao.selectRoom();
+		List<Room> lr = roomService.selectRoom();
 		/**
 		 * 注解方式或代码方式更新缓存(注解在selectRoom()方法上)
 		 */

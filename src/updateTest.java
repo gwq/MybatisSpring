@@ -1,6 +1,6 @@
-import gwq.mybatis.dao.HotelDao;
-import gwq.mybatis.dao.RoomDao;
 import gwq.mybatis.model.Room;
+import gwq.mybatis.service.HotelService;
+import gwq.mybatis.service.RoomService;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ public class updateTest {
 	 */
 	public static void main(String[] args) {
 		ApplicationContext context = new ClassPathXmlApplicationContext("gwq/mybatis/config/applicationContext.xml");
-		HotelDao hd = (HotelDao) context.getBean("hotelDaoService");
-		RoomDao rd = (RoomDao)context.getBean("roomDaoService");
+		HotelService hd = (HotelService) context.getBean("hotelService");
+		RoomService rd = (RoomService)context.getBean("roomService");
 		
 		List<Room> lr = rd.selectRoom();
 		for(Room r : lr){
